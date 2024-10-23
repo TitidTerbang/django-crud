@@ -58,6 +58,15 @@ function UserList() {
         setNewUser({name: '', age: ''});
     }
 
+    const handleDelete = async (user) => {
+        try {
+            await axios.delete(`http://localhost:8000/api/users/${user.id}/`);
+            setUsers(users.filter((u) => u.id !== user.id));
+        } catch (error) {
+            setError(error);
+        }
+    };
+
     if (loading) return <p className={"loading"}>Loading...</p>;
     if (error) return <p className={"error"}>Error: {error.message}</p>;
 
@@ -81,6 +90,9 @@ function UserList() {
                         <td className={"px-4 py-2"}>
                             <button onClick={() => handleEdit(user)}
                                     className={"bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded"}>Edit
+                            </button>
+                            <button onClick={() => handleDelete(user)}
+                                    className={"bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded ml-2"}>Delete
                             </button>
                         </td>
                     </tr>

@@ -11,9 +11,8 @@ from .serializer import UserSerializer
 def get_users(request):
     users = User.objects.all()
     print(f"Number of users: {len(users)}")
-    print(f"Users: {users}")
     serializer = UserSerializer(users, many=True)
-    print(f"Serialized data: {serializer.data}")
+    print("data ditampilkan")
     return Response(serializer.data)
 
 
@@ -22,6 +21,7 @@ def create_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
+        print("data berhasil disimpan")
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -35,12 +35,15 @@ def user_detail(request, pk):
 
     if request.method == 'GET':
         serializer = UserSerializer(user)
+        print("data ditampilkan")
         return Response(serializer.data)
     elif request.method == 'PUT':
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
+            print("data berhasil diupdate")
             serializer.save()
         return Response(serializer.data)
     elif request.method == 'DELETE':
+        print("data dihapus")
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

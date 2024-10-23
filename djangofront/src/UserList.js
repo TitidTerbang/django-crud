@@ -7,6 +7,7 @@ function UserList() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [newUser, setNewUser] = useState({name: '', age: ''});
+    const [editingUser, setEditingUser] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -24,18 +25,37 @@ function UserList() {
     }, []);
 
     const handleInputChange = (event) => {
-        setNewUser({...newUser, [event.target.name]: event.target.value});
-    }
+        if (editingUser) {
+            setEditingUser({...editingUser, [event.target.name]: event.target.value});
+        } else {
+            setNewUser({...newUser, [event.target.name]: event.target.value});
+        }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/api/users/create/', newUser);
-            setUsers([...users, response.data]);
-            setNewUser({name: '', age: ''});
+            if (editingUser) {
+                await axios.put(
+                    `http://localhost:8000/api/users/${editingUser.id}/`, editingUser
+                );
+                setUsers(
+                    users.map((user) => user.id === editingUser.id ? editingUser : user)
+                )
+                setEditingUser(null);
+            } else {
+                const response = await axios.post('http://localhost:8000/api/users/create/', newUser);
+                setUsers([...users, response.data]);
+                setNewUser({name: '', age: ''});
+            }
         } catch (error) {
             setError(error);
         }
+    }
+
+    const handleEdit = (user) => {
+        setEditingUser({...user});
+        setNewUser({name: '', age: ''});
     }
 
     if (loading) return <p className={"loading"}>Loading...</p>;
@@ -46,34 +66,51 @@ function UserList() {
             <table className={"table-auto w-full"}>
                 <thead className={"bg-gray-200"}>
                 <tr>
+                    <th className={"px-4 py-2"}>ID</th>
                     <th className={"px-4 py-2"}>Nama</th>
                     <th className={"px-4 py-2"}>Umur</th>
+                    <th className={"px-4 py-2"}>Edit User</th>
                 </tr>
                 </thead>
                 <tbody className={"bg-white"}>
                 {users.map(user => (
                     <tr key={user.id} className={"border-b border-gray-200"}>
+                        <td className={"px-4 py-2"}>{user.id}</td>
                         <td className={"px-4 py-2"}>{user.name}</td>
                         <td className={"px-4 py-2"}>{user.age}</td>
+                        <td className={"px-4 py-2"}>
+                            <button onClick={() => handleEdit(user)}
+                                    className={"bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded"}>Edit
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
 
             <div className={"mt-8"}>
-                <h2 className={"text-2xl font-semibold mb-2"}>Tambahkan User</h2>
+                <h2 className={"text-2xl font-semibold mb-2"}>{editingUser ? "edit user" : "tambahkan user"}</h2>
                 <form onSubmit={handleSubmit} className={"space-y-4"}>
-                    <label className={"block text-sm font-medium"}>
+                    <label htmlFor={"name"} className={"block text-sm font-medium"}>
                         nama:
-                        <input type={"text"} name={"name"} value={newUser.name} onChange={handleInputChange} className={"border border-gray-300 p-2 rounded"}/>
+                        <input type={"text"} id={"name"} name={"name"}
+                               value={editingUser ? editingUser.name : newUser.name} onChange={handleInputChange}
+                               className={"border border-gray-300 p-2 rounded"}/>
                     </label>
                     <br/>
                     <label className={"block text-sm font-medium"}>
                         Umur:
-                        <input type={"number"} name={"age"} value={newUser.age} onChange={handleInputChange} className={"border border-gray-300 p-2 rounded"}/>
+                        <input type={"number"} id={"age"} name={"age"}
+                               value={editingUser ? editingUser.age : newUser.age} onChange={handleInputChange}
+                               className={"border border-gray-300 p-2 rounded"}/>
                     </label>
                     <br/>
-                    <button type={"submit"} className={"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"}>Add User</button>
+                    <button type={"submit"}
+                            className={"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"}>{editingUser ? "Edit user" : "Tambahkan user"}
+                    </button>
+                    {editingUser && (
+                        <button onClick={() => setEditingUser(null)}
+                                className={"bg-gray-300 hover:bg-gray-800 font-bold py-2 px-4 rounded ml-2"}>Cancel</button>)}
                 </form>
             </div>
         </div>

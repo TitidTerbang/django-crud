@@ -10,7 +10,10 @@ from .serializer import UserSerializer
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
+    print(f"Number of users: {len(users)}")
+    print(f"Users: {users}")
     serializer = UserSerializer(users, many=True)
+    print(f"Serialized data: {serializer.data}")
     return Response(serializer.data)
 
 

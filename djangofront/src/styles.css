@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container{
+  max-width: 960px;
+}
+.table-auto{
+  border-collapse: collapse;
+}
+.loading{
+  color: #007bff; /* Example color, you can change */
+}
+.error {
+  color: #dc3545; /* Example color, you can change */
+  font-weight: bold;
+}
+th, td {
+  padding: 0.8rem;
+  border: 1px solid #e0e0e0; /* Example border color, adjust as needed */
+  text-align: left;
+}
